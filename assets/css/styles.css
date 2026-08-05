@@ -34,6 +34,7 @@
   --primary-hover: oklch(0.44 0.18 255);
   --primary-foreground: oklch(0.985 0 0);
   --primary-soft: oklch(0.96 0.03 255);
+  --success: oklch(0.52 0.14 155);
   --border: oklch(0.905 0 0);
   --border-strong: oklch(0.8 0 0);
   --ring: oklch(0.55 0.18 255);
@@ -62,6 +63,7 @@
   --primary-hover: oklch(0.75 0.15 255);
   --primary-foreground: oklch(0.16 0.02 255);
   --primary-soft: oklch(0.26 0.05 255);
+  --success: oklch(0.7 0.14 155);
   --border: oklch(0.28 0 0);
   --border-strong: oklch(0.42 0 0);
   --ring: oklch(0.7 0.16 255);
@@ -195,6 +197,15 @@ code {
 .section-head {
   max-width: 44rem;
   margin-bottom: 2.5rem;
+}
+
+.section-head.centred {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.centred {
+  text-align: center;
 }
 
 .section h2 {
@@ -353,6 +364,12 @@ code {
   color: var(--primary-foreground);
 }
 
+.button-lg {
+  height: 3rem;
+  padding-inline: 1.6rem;
+  font-size: 1rem;
+}
+
 .button-ghost {
   border-color: var(--border-strong);
   color: var(--foreground);
@@ -445,16 +462,39 @@ code {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin: 1.75rem 0 1.25rem;
+  margin: 1.75rem 0 1.5rem;
 }
 
-.hero-note {
+/* Three reassurances directly under the buttons — the objections a planner
+   raises before they will click anything. */
+.hero-points {
+  list-style: none;
   margin: 0;
-  padding-top: 1.25rem;
+  padding: 1.25rem 0 0;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  max-width: 38rem;
+}
+
+.hero-points li {
+  position: relative;
+  padding-left: 1.5rem;
   font-size: 0.9375rem;
   color: var(--muted-foreground);
-  max-width: 38rem;
+}
+
+.hero-points li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.45rem;
+  width: 0.7rem;
+  height: 0.4rem;
+  border-left: 2px solid var(--success);
+  border-bottom: 2px solid var(--success);
+  transform: rotate(-45deg);
 }
 
 .hero-figure {
@@ -603,6 +643,318 @@ code {
 
 .feature-card {
   border-top: 3px solid var(--primary);
+}
+
+/* The three complaints. Quoted headings, so they get a quieter treatment than
+   a normal card title — they are the reader's words, not ours. */
+.card.pain h3 {
+  font-size: 1.0625rem;
+  color: var(--foreground);
+}
+
+.card.audience h3 {
+  color: var(--primary);
+}
+
+/* ───────────────────────── How it works: steps ──────────────────── */
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  counter-reset: step;
+}
+
+.step {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.step-art {
+  display: block;
+  width: 100%;
+  max-width: 11rem;
+  height: auto;
+  margin-bottom: 1rem;
+  background: var(--diagram-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.25rem;
+}
+
+.step-art .rule {
+  stroke: var(--diagram-grid);
+  stroke-width: 1;
+}
+
+.step-art .bar {
+  fill: var(--diagram-bar);
+}
+
+.step-art .bar.crit {
+  fill: var(--diagram-critical);
+}
+
+.step-art .bar.ghost {
+  fill: none;
+  stroke: var(--diagram-grid);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+}
+
+.step-art .link,
+.step-art .cursor {
+  fill: none;
+  stroke: var(--diagram-link);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.step-art .link.crit-link {
+  stroke: var(--diagram-critical);
+}
+
+.step-art .link-head,
+.step-art .cursor-head {
+  fill: var(--diagram-link);
+}
+
+.step-art .crit-head {
+  fill: var(--diagram-critical);
+}
+
+.step-art .screen {
+  fill: none;
+  stroke: var(--diagram-grid);
+  stroke-width: 1.5;
+}
+
+.step h3 {
+  font-size: 1.0625rem;
+}
+
+.step p {
+  margin-bottom: 0;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+/* ─────────────────────────── Benefits ───────────────────────────── */
+
+.benefit-list {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+.benefit {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+}
+
+.benefit h3 {
+  font-size: 1.1875rem;
+  margin-bottom: 0.75rem;
+}
+
+.benefit p {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+.benefit em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+/* The payoff line is the whole point of the block — it says what the feature
+   buys you, in the reader's terms. Set apart so the eye can skip to it. */
+.benefit-payoff {
+  margin: 1rem 0 0;
+  padding-top: 0.875rem;
+  border-top: 1px dashed var(--border);
+}
+
+.benefit-payoff strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ───────────────────────── Feature checklist ────────────────────── */
+
+.feature-columns {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+
+.feature-block h3 {
+  font-size: 1.0625rem;
+  padding-bottom: 0.625rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─────────────────────────── Comparison ─────────────────────────── */
+
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 46rem;
+  font-size: 0.9375rem;
+}
+
+.compare th,
+.compare td {
+  text-align: left;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.compare thead th {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .compare thead th {
+  background: oklch(0.23 0 0);
+}
+
+.compare thead th.highlight {
+  color: var(--primary);
+  font-size: 0.9375rem;
+}
+
+.compare tbody th {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.compare td {
+  color: var(--muted-foreground);
+}
+
+/* The product's own column, marked out by a tinted rail rather than by colour
+   alone — the header text names it too. */
+.compare .highlight {
+  background: var(--primary-soft);
+  color: var(--foreground);
+  font-weight: 500;
+  box-shadow: inset 2px 0 0 var(--primary);
+}
+
+.compare tbody tr:last-child th,
+.compare tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ───────────────────────────── FAQ ──────────────────────────────── */
+
+.faq {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.faq details {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 1.25rem;
+}
+
+.faq summary {
+  cursor: pointer;
+  padding: 1rem 0;
+  font-weight: 600;
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: '';
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: 0.35rem;
+  border-right: 2px solid var(--muted-foreground);
+  border-bottom: 2px solid var(--muted-foreground);
+  transform: rotate(45deg);
+  transition: transform 150ms ease-out;
+}
+
+.faq details[open] summary::after {
+  transform: rotate(-135deg);
+}
+
+.faq details p {
+  margin: 0 0 1.125rem;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+/* ─────────────────────────── Closing CTA ────────────────────────── */
+
+.cta-section {
+  background:
+    radial-gradient(50rem 24rem at 50% 0%, var(--primary-soft), transparent 70%),
+    var(--background);
+}
+
+.cta-section h2 {
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+}
+
+.cta-section .prose {
+  margin-inline: auto;
+  max-width: 36rem;
+}
+
+.cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2rem 0 1.25rem;
+}
+
+.cta-note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
 }
 
 /* ───────────────────────────── Lists ────────────────────────────── */
@@ -861,6 +1213,19 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .benefit-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .feature-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 3rem;
+  }
+
   .split {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 3rem;
@@ -886,6 +1251,22 @@ code {
 
   .hero-inner {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  }
+
+  .steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .step-art {
+    max-width: none;
+  }
+}
+
+/* On a phone the header would wrap to three rows. Drop the header CTA — the
+   hero's own "Get early access" button is a thumb's width below it anyway. */
+@media (max-width: 30rem) {
+  .header-cta {
+    display: none;
   }
 }
 
