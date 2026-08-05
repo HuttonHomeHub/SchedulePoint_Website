@@ -1,0 +1,936 @@
+/*
+ * SchedulePoint marketing site — styles.
+ *
+ * The colour tokens mirror the application's design system (OKLCH, semantic
+ * names, first-class light and dark themes) so the site and the product read as
+ * one thing. No build step, no dependencies: this file is the whole system.
+ */
+
+/* ───────────────────────────── Tokens ───────────────────────────── */
+
+:root {
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-lg: calc(var(--radius) + 4px);
+
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --wrap: 76rem;
+  --wrap-narrow: 46rem;
+}
+
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --muted: oklch(0.975 0 0);
+  --muted-foreground: oklch(0.505 0 0);
+  --primary: oklch(0.5 0.18 255);
+  --primary-hover: oklch(0.44 0.18 255);
+  --primary-foreground: oklch(0.985 0 0);
+  --primary-soft: oklch(0.96 0.03 255);
+  --border: oklch(0.905 0 0);
+  --border-strong: oklch(0.8 0 0);
+  --ring: oklch(0.55 0.18 255);
+  --shadow-color: 220 12% 45%;
+
+  /* Diagram-specific */
+  --diagram-surface: oklch(0.995 0.002 255);
+  --diagram-grid: oklch(0.91 0 0);
+  --diagram-nonworking: oklch(0.965 0.002 255);
+  --diagram-bar: oklch(0.62 0.11 255);
+  --diagram-bar-text: oklch(0.99 0 0);
+  --diagram-critical: oklch(0.56 0.2 27);
+  --diagram-link: oklch(0.48 0.02 255);
+  --diagram-today: oklch(0.52 0.14 155);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.196 0 0);
+  --muted: oklch(0.19 0 0);
+  --muted-foreground: oklch(0.715 0 0);
+  --primary: oklch(0.68 0.16 255);
+  --primary-hover: oklch(0.75 0.15 255);
+  --primary-foreground: oklch(0.16 0.02 255);
+  --primary-soft: oklch(0.26 0.05 255);
+  --border: oklch(0.28 0 0);
+  --border-strong: oklch(0.42 0 0);
+  --ring: oklch(0.7 0.16 255);
+  --shadow-color: 220 40% 2%;
+
+  --diagram-surface: oklch(0.175 0.005 255);
+  --diagram-grid: oklch(0.31 0 0);
+  --diagram-nonworking: oklch(0.21 0.004 255);
+  --diagram-bar: oklch(0.58 0.12 255);
+  --diagram-bar-text: oklch(0.99 0 0);
+  --diagram-critical: oklch(0.62 0.19 27);
+  --diagram-link: oklch(0.75 0.015 255);
+  --diagram-today: oklch(0.68 0.14 155);
+}
+
+/* ───────────────────────────── Reset ────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: var(--primary);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.35em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  text-decoration: none;
+  transition: top 150ms ease-out;
+}
+
+.skip-link:focus {
+  top: 1rem;
+  color: var(--primary-foreground);
+}
+
+/* ───────────────────────────── Layout ───────────────────────────── */
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.wrap.narrow {
+  max-width: var(--wrap-narrow);
+}
+
+.section {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+  border-top: 1px solid var(--border);
+}
+
+.section-muted {
+  background: var(--muted);
+}
+
+.section-head {
+  max-width: 44rem;
+  margin-bottom: 2.5rem;
+}
+
+.section h2 {
+  font-size: clamp(1.65rem, 3.4vw, 2.25rem);
+}
+
+.section-lede {
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  margin-bottom: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.prose {
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+}
+
+.aside {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--primary);
+  background: var(--primary-soft);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--foreground);
+  font-size: 0.9375rem;
+}
+
+/* ───────────────────────────── Header ───────────────────────────── */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in oklab, var(--background) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  min-height: 4rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--foreground);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  flex: none;
+}
+
+.brand-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--primary);
+}
+
+.brand-name {
+  font-size: 1.0625rem;
+}
+
+/* Wide: the nav sits between the brand and the actions. Narrow: it wraps onto
+   its own scrollable row rather than disappearing — a one-page site whose
+   sections are unreachable from the header is a worse trade than 2rem of chrome. */
+.site-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.site-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.site-nav ul {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav a {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: var(--muted-foreground);
+  text-decoration: none;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current='true'] {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+[data-theme='dark'] .site-nav a:hover,
+[data-theme='dark'] .site-nav a[aria-current='true'] {
+  background: var(--card);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+}
+
+/* ───────────────────────────── Controls ─────────────────────────── */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding-inline: 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    color 150ms ease-out;
+}
+
+.button-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.button-primary:hover {
+  background: var(--primary-hover);
+  color: var(--primary-foreground);
+}
+
+.button-ghost {
+  border-color: var(--border-strong);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.button-ghost:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+[data-theme='dark'] .button-ghost:hover {
+  background: var(--card);
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: var(--muted);
+}
+
+[data-theme='dark'] .icon-button:hover {
+  background: var(--card);
+}
+
+.icon-button svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme='light'] .icon-moon,
+[data-theme='dark'] .icon-sun {
+  display: none;
+}
+
+/* ───────────────────────────── Hero ─────────────────────────────── */
+
+.hero {
+  padding-block: clamp(3rem, 7vw, 5.5rem);
+  background:
+    radial-gradient(60rem 30rem at 15% -10%, var(--primary-soft), transparent 65%),
+    var(--background);
+}
+
+.hero-inner {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+.hero h1 {
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: var(--primary);
+}
+
+.lede {
+  font-size: clamp(1.0625rem, 1.6vw, 1.1875rem);
+  color: var(--muted-foreground);
+  max-width: 38rem;
+}
+
+.lede strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.75rem 0 1.25rem;
+}
+
+.hero-note {
+  margin: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9375rem;
+  color: var(--muted-foreground);
+  max-width: 38rem;
+}
+
+.hero-figure {
+  background: var(--diagram-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem;
+  box-shadow: 0 12px 32px -12px hsl(var(--shadow-color) / 0.28);
+  overflow: hidden;
+}
+
+.tsld {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-sans);
+}
+
+.tsld-nonworking rect {
+  fill: var(--diagram-nonworking);
+}
+
+.tsld-ruler line,
+.tsld-ticks line {
+  stroke: var(--diagram-grid);
+  stroke-width: 1;
+}
+
+.tsld-ruler text {
+  fill: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.tsld-today line {
+  stroke: var(--diagram-today);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.tsld-today rect {
+  fill: var(--diagram-today);
+}
+
+.tsld-today text {
+  fill: var(--background);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-anchor: middle;
+}
+
+.tsld-links path {
+  fill: none;
+  stroke: var(--diagram-link);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.tsld-links path.dashed {
+  stroke-dasharray: 5 4;
+}
+
+.tsld-links path.critical {
+  stroke: var(--diagram-critical);
+  stroke-width: 2.2;
+}
+
+.tsld-bars rect {
+  fill: var(--diagram-bar);
+}
+
+.tsld-bars .critical rect {
+  fill: var(--diagram-critical);
+}
+
+.tsld-bars text {
+  fill: var(--diagram-bar-text);
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.tsld-legend text {
+  fill: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.tsld-legend .swatch-critical {
+  fill: var(--diagram-critical);
+}
+
+.tsld-legend .swatch-normal {
+  fill: var(--diagram-bar);
+}
+
+.tsld-legend .legend-line {
+  stroke: var(--diagram-link);
+  stroke-width: 1.6;
+}
+
+.tsld-legend .legend-line.dashed {
+  stroke-dasharray: 5 4;
+}
+
+/* ───────────────────────────── Cards ────────────────────────────── */
+
+.card-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px hsl(var(--shadow-color) / 0.06);
+}
+
+.section-muted .card {
+  box-shadow: none;
+}
+
+.card h3 {
+  font-size: 1.0625rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p:last-child,
+.card ul:last-child {
+  margin-bottom: 0;
+}
+
+.card p {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+.card em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.feature-card {
+  border-top: 3px solid var(--primary);
+}
+
+/* ───────────────────────────── Lists ────────────────────────────── */
+
+.split {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+
+.split-body h3 {
+  font-size: 1.125rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.tick-list,
+.cross-list,
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.tick-list li,
+.cross-list li,
+.plain-list li {
+  position: relative;
+  padding-left: 1.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+.tick-list li strong,
+.plain-list li strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.tick-list li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.45rem;
+  width: 0.7rem;
+  height: 0.4rem;
+  border-left: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  transform: rotate(-45deg);
+}
+
+.cross-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--border-strong);
+  font-weight: 600;
+}
+
+.plain-list li::before {
+  content: '';
+  position: absolute;
+  left: 0.3rem;
+  top: 0.6rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* ───────────────────────────── Stats ────────────────────────────── */
+
+.stat-strip {
+  list-style: none;
+  margin: 2.5rem 0 0;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stat-strip strong {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.stat-strip span {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* ───────────────────────────── Table ────────────────────────────── */
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.roles {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 34rem;
+  font-size: 0.9375rem;
+}
+
+.roles th,
+.roles td {
+  text-align: left;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.roles thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+
+[data-theme='dark'] .roles thead th {
+  background: oklch(0.23 0 0);
+}
+
+.roles tbody th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.roles td {
+  color: var(--muted-foreground);
+}
+
+.roles tbody tr:last-child th,
+.roles tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ───────────────────────────── Callout ──────────────────────────── */
+
+.callout {
+  margin-top: 2rem;
+  padding: 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.callout h3 {
+  font-size: 1.125rem;
+}
+
+.callout p {
+  color: var(--muted-foreground);
+  max-width: 52rem;
+}
+
+.callout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* ───────────────────────────── Glossary ─────────────────────────── */
+
+.glossary {
+  margin: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.glossary dt {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.glossary dd {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+}
+
+/* ───────────────────────────── Footer ───────────────────────────── */
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: var(--muted);
+  padding-block: 3rem 2rem;
+}
+
+.footer-inner {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: 1fr;
+}
+
+.footer-brand {
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.footer-note {
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+  margin: 0;
+  max-width: 26rem;
+}
+
+.footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.footer-links a {
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-legal {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-legal p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+/* ───────────────────────────── Responsive ───────────────────────── */
+
+@media (min-width: 48rem) {
+  .card-grid.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem;
+  }
+
+  .stat-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .footer-inner {
+    grid-template-columns: 1.5fr 1fr;
+  }
+
+  .footer-links {
+    grid-auto-flow: row;
+  }
+}
+
+@media (min-width: 64rem) {
+  .card-grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  }
+}
+
+@media (max-width: 63.99rem) {
+  html {
+    scroll-padding-top: 8rem;
+  }
+
+  .brand {
+    margin-right: auto;
+  }
+
+  .site-nav {
+    order: 3;
+    flex-basis: 100%;
+    margin-inline: -1.5rem;
+    padding: 0 1.5rem 0.6rem;
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .site-header,
+  .hero-actions,
+  .callout-actions,
+  .skip-link {
+    display: none;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+}

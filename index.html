@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SchedulePoint — construction scheduling built around the logic diagram</title>
+    <meta
+      name="description"
+      content="SchedulePoint is a browser-based construction scheduling application built around a Time-Scaled Logic Diagram. Planners draw activities on a timeline and connect them with logic, with a real CPM/GPM engine underneath."
+    />
+    <meta name="colour-scheme" content="light dark" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SchedulePoint — construction scheduling built around the logic diagram" />
+    <meta
+      property="og:description"
+      content="Browser-based construction scheduling with a Time-Scaled Logic Diagram as the primary editing surface, and a real CPM/GPM engine underneath."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script>
+      // Applied before first paint so the correct theme is never a flash.
+      (function () {
+        try {
+          var stored = localStorage.getItem('sp-theme');
+          var theme =
+            stored ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {
+          /* no storage — the light default stands */
+        }
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="#top" aria-label="SchedulePoint — home">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <rect x="2" y="6" width="13" height="6" rx="2" fill="currentColor" />
+            <rect x="12" y="20" width="18" height="6" rx="2" fill="currentColor" opacity="0.45" />
+            <path
+              d="M15 9h4a2 2 0 0 1 2 2v6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path d="M21 20.5 18.6 16h4.8Z" fill="currentColor" />
+          </svg>
+          <span class="brand-name">SchedulePoint</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Sections">
+          <ul>
+            <li><a href="#what">What it is</a></li>
+            <li><a href="#canvas">The canvas</a></li>
+            <li><a href="#capabilities">Capabilities</a></li>
+            <li><a href="#views">Views</a></li>
+            <li><a href="#teams">Teams</a></li>
+            <li><a href="#data">Your data</a></li>
+            <li><a href="#stack">Under the hood</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <button
+            id="theme-toggle"
+            class="icon-button"
+            type="button"
+            aria-label="Switch to dark theme"
+          >
+            <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="4.2" />
+              <path
+                d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3"
+              />
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M20 14.4A8.4 8.4 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4Z" />
+            </svg>
+          </button>
+          <a
+            class="button button-ghost repo-link"
+            href="https://github.com/HuttonHomeHub/SchedulePoint_1"
+            >GitHub</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ───────────────────────────── Hero ───────────────────────────── -->
+      <section class="hero" id="top">
+        <div class="wrap hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">Construction scheduling · browser-native</p>
+            <h1>The schedule <em>is</em> the logic diagram.</h1>
+            <p class="lede">
+              SchedulePoint is a browser-based construction scheduling application built around a
+              <strong>Time-Scaled Logic Diagram</strong>. Planners draw activities directly on a
+              timeline and connect them with logic — rather than filling in a Gantt grid and hoping
+              the network underneath is right.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#what">See what it does</a>
+              <a class="button button-ghost" href="https://github.com/HuttonHomeHub/SchedulePoint_1"
+                >View the source</a
+              >
+            </div>
+            <p class="hero-note">
+              A real CPM/GPM engine underneath: four dependency types with lag, calendars down to
+              the working minute, constraints, progress, float, baselines and resources.
+            </p>
+          </div>
+
+          <div class="hero-figure" role="img" aria-label="A time-scaled logic diagram: activity bars placed along a date ruler, joined by logic arrows, with the critical path highlighted and a marker on today's date.">
+            <svg viewBox="0 0 760 380" class="tsld" aria-hidden="true" focusable="false">
+              <defs>
+                <marker
+                  id="arrow"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M0 0 10 5 0 10Z" fill="var(--diagram-link)" />
+                </marker>
+                <marker
+                  id="arrow-critical"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M0 0 10 5 0 10Z" fill="var(--diagram-critical)" />
+                </marker>
+              </defs>
+
+              <!-- non-working-day shading -->
+              <g class="tsld-nonworking">
+                <rect x="118" y="46" width="24" height="316" />
+                <rect x="238" y="46" width="24" height="316" />
+                <rect x="358" y="46" width="24" height="316" />
+                <rect x="478" y="46" width="24" height="316" />
+                <rect x="598" y="46" width="24" height="316" />
+                <rect x="718" y="46" width="24" height="316" />
+              </g>
+
+              <!-- date ruler -->
+              <g class="tsld-ruler">
+                <line x1="10" y1="46" x2="750" y2="46" />
+                <text x="14" y="30">MAR</text>
+                <text x="194" y="30">APR</text>
+                <text x="374" y="30">MAY</text>
+                <text x="554" y="30">JUN</text>
+                <g class="tsld-ticks">
+                  <line x1="10" y1="36" x2="10" y2="46" />
+                  <line x1="130" y1="38" x2="130" y2="46" />
+                  <line x1="250" y1="38" x2="250" y2="46" />
+                  <line x1="370" y1="36" x2="370" y2="46" />
+                  <line x1="490" y1="38" x2="490" y2="46" />
+                  <line x1="610" y1="38" x2="610" y2="46" />
+                  <line x1="730" y1="36" x2="730" y2="46" />
+                </g>
+              </g>
+
+              <!-- today marker -->
+              <g class="tsld-today">
+                <line x1="322" y1="46" x2="322" y2="362" />
+                <rect x="290" y="52" width="64" height="18" rx="9" />
+                <text x="322" y="65">TODAY</text>
+              </g>
+
+              <!-- logic links: driving = solid, non-driving = dashed (never colour alone) -->
+              <g class="tsld-links">
+                <path class="critical" d="M186 96h20v44h22" marker-end="url(#arrow-critical)" />
+                <path class="critical" d="M382 140h11v44h11" marker-end="url(#arrow-critical)" />
+                <path class="critical" d="M562 184h20v38h22" marker-end="url(#arrow-critical)" />
+                <path class="dashed" d="M186 96h20v170h28" marker-end="url(#arrow)" />
+                <path d="M148 316h40v-38h46" marker-end="url(#arrow)" />
+                <path d="M478 272h60v-38h66" marker-end="url(#arrow)" />
+              </g>
+
+              <!-- activity bars -->
+              <g class="tsld-bars">
+                <g class="bar critical">
+                  <rect x="34" y="84" width="152" height="24" rx="6" />
+                  <text x="44" y="101">A100 Mobilise · 12d</text>
+                </g>
+                <g class="bar critical">
+                  <rect x="228" y="128" width="154" height="24" rx="6" />
+                  <text x="238" y="145">A200 Piling · 15d</text>
+                </g>
+                <g class="bar critical">
+                  <rect x="404" y="172" width="158" height="24" rx="6" />
+                  <text x="414" y="189">A300 Substructure · 16d</text>
+                </g>
+                <g class="bar critical">
+                  <rect x="604" y="216" width="122" height="24" rx="6" />
+                  <text x="614" y="233">A400 Frame · 12d</text>
+                </g>
+                <g class="bar">
+                  <rect x="234" y="260" width="244" height="24" rx="6" />
+                  <text x="244" y="277">A210 Service diversions · 24d</text>
+                </g>
+                <g class="bar">
+                  <rect x="34" y="304" width="114" height="24" rx="6" />
+                  <text x="44" y="321">A220 Survey · 11d</text>
+                </g>
+              </g>
+
+              <!-- legend -->
+              <g class="tsld-legend">
+                <rect x="34" y="344" width="14" height="10" rx="3" class="swatch-critical" />
+                <text x="56" y="353">Critical path</text>
+                <rect x="150" y="344" width="14" height="10" rx="3" class="swatch-normal" />
+                <text x="172" y="353">Float available</text>
+                <line x1="292" y1="349" x2="322" y2="349" class="legend-line" />
+                <text x="330" y="353">Driving</text>
+                <line x1="400" y1="349" x2="430" y2="349" class="legend-line dashed" />
+                <text x="438" y="353">Non-driving</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────── What it is ─────────────────────────── -->
+      <section class="section" id="what">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>What SchedulePoint does</h2>
+            <p class="section-lede">
+              It is a scheduling tool for construction planners: build the programme, compute it
+              properly, keep it honest as the job moves, and share it with the people who need to
+              read it.
+            </p>
+          </header>
+
+          <div class="card-grid three">
+            <article class="card">
+              <h3>Build the programme graphically</h3>
+              <p>
+                Drop an activity onto the timeline, drag its width to set the duration, and pull a
+                logic line to the next one. The network is what you are drawing — not a by-product
+                of a table you filled in.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Compute it with a real engine</h3>
+              <p>
+                Forward and backward pass, total float, the critical path, driving logic, calendars,
+                date constraints and out-of-sequence progress. The engine is measured against a
+                P6-class conformance fixture, not asserted.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Run the job from it</h3>
+              <p>
+                Mark progress against a data date, snapshot a baseline and read the variance, log
+                the reasons in notes, and hand the pen between planners with a clean single-editor
+                lock.
+              </p>
+            </article>
+          </div>
+
+          <ul class="stat-strip">
+            <li><strong>4</strong><span>dependency types (FS/SS/FF/SF) with lag</span></li>
+            <li><strong>7</strong><span>date constraint types honoured as labelled</span></li>
+            <li><strong>2,000</strong><span>activities per plan, the v1 scale target</span></li>
+            <li><strong>&lt;500ms</strong><span>P95 recalculation at 500 activities</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────── Problem ──────────────────────────── -->
+      <section class="section section-muted" id="problem">
+        <div class="wrap narrow">
+          <h2>The gap it fills</h2>
+          <p class="prose">
+            Construction scheduling tools split into two camps. Heavyweight desktop applications —
+            Primavera P6, MS Project — carry the licensing, the install and a Gantt-centric way of
+            working. Lightweight web tools are Gantt-only and drop the underlying logic model
+            altogether, which is the part that actually tells you why the job finishes when it
+            finishes.
+          </p>
+          <p class="prose">
+            The graphical, network-first approach has a track record — Netpoint proved planners want
+            it — but it stayed a desktop product. SchedulePoint is the browser-native version of
+            that idea: the Time-Scaled Logic Diagram is first-class, the CPM/GPM implementation is
+            correct rather than approximate, and a team can work on the same programme from a link.
+          </p>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── Canvas ──────────────────────────── -->
+      <section class="section" id="canvas">
+        <div class="wrap">
+          <header class="section-head">
+            <p class="eyebrow">The flagship surface</p>
+            <h2>The Time-Scaled Logic Diagram</h2>
+            <p class="section-lede">
+              Activities sit where they happen in time, on lanes you control, joined by the logic
+              that drives them. Everything else in the product is a projection of this.
+            </p>
+          </header>
+
+          <div class="split">
+            <div class="split-body">
+              <h3>Authoring</h3>
+              <ul class="tick-list">
+                <li>
+                  <strong>Draw an activity</strong> straight onto the timeline — click for the start,
+                  drag right for the duration.
+                </li>
+                <li>
+                  <strong>Move it and the network re-flows</strong> live; successors follow, and the
+                  critical path re-highlights as you go.
+                </li>
+                <li>
+                  <strong>Link two activities</strong> with a two-click link tool, choosing the
+                  dependency type and lag as you make it.
+                </li>
+                <li>
+                  <strong>Lanes are yours</strong> — drag activities up and down, or let the auto-pack
+                  layout tidy the diagram for you.
+                </li>
+                <li>
+                  <strong>Undo and redo</strong> across every edit — reposition, relane, create,
+                  delete, logic changes, hand placement.
+                </li>
+                <li>
+                  <strong>Level-of-effort activities</strong> are composed by picking their start and
+                  finish drivers, not by typing dates.
+                </li>
+              </ul>
+            </div>
+            <div class="split-body">
+              <h3>Reading</h3>
+              <ul class="tick-list">
+                <li>
+                  <strong>Adaptive date ruler</strong> from year down to day, with zoom presets, pan
+                  and a marker on today.
+                </li>
+                <li>
+                  <strong>Non-working days are shaded</strong>, so a bar that spans a shutdown looks
+                  like one.
+                </li>
+                <li>
+                  <strong>Driving logic is visually distinct</strong> from non-driving — encoded by
+                  shape as well as colour, never colour alone.
+                </li>
+                <li>
+                  <strong>Lenses</strong> dim what does not match: search and filter, colour by
+                  criticality or float bucket or WBS, and a ghost-bar baseline overlay.
+                </li>
+                <li>
+                  <strong>Isolate a logic path</strong> to see only an activity's predecessor and
+                  successor chain — the full chain, or the driving one.
+                </li>
+                <li>
+                  <strong>Next conflict</strong> steps through the plan's flagged activities and says
+                  in words why each is flagged.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="aside">
+            Constraints appear as pins on the canvas. Logic lines route around bars rather than
+            through them. The whole scene is drawn to a frame budget so panning a 2,000-activity plan
+            stays smooth.
+          </p>
+        </div>
+      </section>
+
+      <!-- ────────────────────────── Capabilities ───────────────────────── -->
+      <section class="section section-muted" id="capabilities">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>The scheduling capabilities</h2>
+            <p class="section-lede">
+              The CPM/GPM feature set construction planners actually use — not a reduced subset that
+              falls over on a real programme.
+            </p>
+          </header>
+
+          <div class="card-grid three">
+            <article class="card">
+              <h3>The CPM engine</h3>
+              <p>
+                Forward and backward pass, total float, free float, the critical path and
+                near-critical shading, with driving-logic tracking throughout. Choose whether
+                "critical" means longest path or total float ≤ 0, and read total float as start,
+                finish or the smaller of the two.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Dependencies</h3>
+              <p>
+                Finish-to-start, start-to-start, finish-to-finish and start-to-finish, each with lag
+                in working or calendar time. Cycles are prevented rather than discovered later.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Calendars &amp; working time</h3>
+              <p>
+                An organisation-level calendar library, a per-plan default and a per-activity
+                override. Weekday patterns, dated exceptions and intraday shift patterns —
+                the engine works in minutes, so a ten-hour shift is ten hours.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Date constraints</h3>
+              <p>
+                Start/finish no-earlier and no-later, must-start-on, must-finish-on and
+                as-late-as-possible placement. A pin that breaks the logic is scheduled
+                <em>and flagged</em> — never silently corrected behind your back.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Progress &amp; the data date</h3>
+              <p>
+                Status, percent complete, actual dates, explicit remaining duration, and
+                suspend/resume. Out-of-sequence work is handled by a plan-level mode: retained
+                logic, progress override or actual dates.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Baselines &amp; variance</h3>
+              <p>
+                Named snapshots with one active baseline per plan, working-day variance computed
+                server-side, and the comparison shown in the table, on the canvas as ghost bars, and
+                in the Gantt as a variance bar.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Resources</h3>
+              <p>
+                A resource library with assignments, per-assignment lag, a demand histogram and a
+                canvas-aligned loading strip that stays under the diagram as you pan and zoom.
+                Over-allocation is flagged on the bars.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>WBS &amp; activity types</h3>
+              <p>
+                Tasks, start and finish milestones, level-of-effort and WBS summary rollups.
+                Membership is managed from the summary or in bulk from the list; dissolving a
+                grouping removes the structure without removing the work.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Notes &amp; audit</h3>
+              <p>
+                Attributed, time-ordered note threads on plans and activities for the weekly "why",
+                plus an append-only audit log — enforced in the database, not just in application
+                code — of who did what to which plan.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── Views ───────────────────────────── -->
+      <section class="section" id="views">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>Ways to look at the same plan</h2>
+            <p class="section-lede">
+              One model underneath. Every view reads and writes the same activities, logic and
+              dates.
+            </p>
+          </header>
+
+          <div class="card-grid two">
+            <article class="card feature-card">
+              <h3>The logic diagram</h3>
+              <p>
+                The primary editing surface, and where the programme is built. Time-scaled, lane
+                based, live critical path, on-canvas labels.
+              </p>
+            </article>
+            <article class="card feature-card">
+              <h3>Gantt</h3>
+              <p>
+                A grid-and-bar projection of the same model behind a TSLD | Gantt switch, with WBS
+                summary rows, baseline variance bars and a printable programme. Read-primary by
+                design — editing belongs on the canvas.
+              </p>
+            </article>
+            <article class="card feature-card">
+              <h3>Float paths</h3>
+              <p>
+                Ranked driving chains into an activity you choose, with the relative float on each
+                row — and the selected path emphasised in both the canvas and the Gantt.
+              </p>
+            </article>
+            <article class="card feature-card">
+              <h3>Project explorer</h3>
+              <p>
+                A persistent, keyboard-navigable Client → Project → Plan rail with in-place
+                create, rename and delete, deep-link reveal, and a recycle bin behind soft delete.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── Teams ───────────────────────────── -->
+      <section class="section section-muted" id="teams">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>Built for a team, not a single seat</h2>
+            <p class="section-lede">
+              Construction scheduling is a team-of-teams activity. Work is scoped to organisations,
+              and everyone gets the access their job needs.
+            </p>
+          </header>
+
+          <div class="table-scroll">
+            <table class="roles">
+              <caption class="visually-hidden">
+                Roles in SchedulePoint and what each can do
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Role</th>
+                  <th scope="col">What they can do</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Org admin</th>
+                  <td>Manage members, organisation settings, and the shared calendar and resource libraries.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Planner</th>
+                  <td>Full control of clients, projects, plans and activities. Holds the edit lock while building.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Contributor</th>
+                  <td>Update progress and add notes on assigned plans. Cannot alter logic or dates.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Viewer</th>
+                  <td>Read-only access to shared plans within the organisation.</td>
+                </tr>
+                <tr>
+                  <th scope="row">External guest</th>
+                  <td>Read-only access to one plan via a revocable share link, with optional expiry. No account needed.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="aside">
+            Many people can read a plan at once. Editing is a single-editor lock — the "pen" — with a
+            clean hand-off, so two planners never quietly overwrite each other's logic.
+          </p>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── Data ────────────────────────────── -->
+      <section class="section" id="data">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>Getting programmes in and out</h2>
+            <p class="section-lede">
+              Your schedule is your data. Bringing an existing programme across should not be a
+              retyping exercise, and getting it out again should not need a support ticket.
+            </p>
+          </header>
+
+          <div class="card-grid two">
+            <article class="card">
+              <h3>Import</h3>
+              <p>
+                Read a Primavera P6 <code>.xer</code> or an MS Project MSPDI <code>.xml</code> into a
+                new plan. The import runs as a dry run first and reports honestly before it commits:
+                what mapped, what was approximated, what was repaired, what could not be carried
+                across. Nothing is dropped silently.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Export</h3>
+              <p>
+                Schedule CSV (spreadsheet-safe), the diagram as PNG or PDF at whole-plan or
+                current-view extents, a printable programme from the Gantt, and XER/MSPDI back out.
+                An organisation admin can export the organisation's data on demand.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────── Audience ─────────────────────────── -->
+      <section class="section section-muted" id="who">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>Who it is for</h2>
+          </header>
+          <div class="card-grid three">
+            <article class="card">
+              <h3>Planners &amp; project controls</h3>
+              <p>
+                The primary user. Comfortable with WBS, logic, float and the critical path; in the
+                schedule for hours at a time and expecting keyboard-speed tooling.
+              </p>
+            </article>
+            <article class="card">
+              <h3>PMs &amp; superintendents</h3>
+              <p>
+                Read the programme, mark progress, comment on what slipped. Need the picture to be
+                readable without a scheduling background.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Clients &amp; owners</h3>
+              <p>
+                Open a read-only link for status. No install, no licence, no account.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────── Non-goals ────────────────────────── -->
+      <section class="section" id="scope">
+        <div class="wrap narrow">
+          <h2>What it deliberately is not</h2>
+          <p class="prose">
+            The scope is stated as plainly as the features, because a scheduling tool that tries to
+            be everything ends up trustworthy at nothing.
+          </p>
+          <ul class="cross-list">
+            <li>Not a general task tracker or PM board — no cards, no tickets.</li>
+            <li>Not an ERP or cost-control system — no invoicing, no earned value beyond schedule variance.</li>
+            <li>Not a document-management system — notes attach to entities, but drawings, RFIs and submittals live elsewhere.</li>
+            <li>Not a mobile-first field app in v1 — desktop and tablet planning is the target.</li>
+            <li>Not an attempt to replicate every corner of P6 — no risk analysis or Monte Carlo, and no coding-structure matrices.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────── Under the hood ────────────────────── -->
+      <section class="section section-muted" id="stack">
+        <div class="wrap">
+          <header class="section-head">
+            <h2>Under the hood</h2>
+            <p class="section-lede">
+              A TypeScript monorepo, built to a consistent production bar — accessibility, tests and
+              documentation are merge requirements rather than follow-ups.
+            </p>
+          </header>
+
+          <div class="card-grid two">
+            <article class="card">
+              <h3>The stack</h3>
+              <ul class="plain-list">
+                <li><strong>Frontend</strong> — React, TypeScript, Vite, Tailwind CSS, Canvas 2D for the diagram</li>
+                <li><strong>Backend</strong> — NestJS, a REST API documented with OpenAPI</li>
+                <li><strong>Database</strong> — PostgreSQL via Prisma</li>
+                <li><strong>Auth</strong> — self-hosted, with organisation-scoped RBAC</li>
+                <li><strong>Delivery</strong> — Docker images built and published by CI</li>
+              </ul>
+            </article>
+            <article class="card">
+              <h3>How correctness is held</h3>
+              <ul class="plain-list">
+                <li>A P6-class conformance fixture and capability matrix for the engine</li>
+                <li>A catalogue of seeded plans and hostile cases driven through the public REST API</li>
+                <li>End-to-end journeys in Playwright, per feature area</li>
+                <li>WCAG 2.2 AA as a merge requirement, on hand-rolled ARIA primitives</li>
+                <li>Architecture decisions recorded, including what was deliberately not built</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="callout">
+            <h3>Project status</h3>
+            <p>
+              SchedulePoint is substantially built and under active development: the engine, the
+              canvas, the Gantt view, baselines, resources, interchange and the audit log have all
+              shipped. It runs on Docker Compose, and the source is MIT-licensed and public.
+            </p>
+            <p class="callout-actions">
+              <a class="button button-primary" href="https://github.com/HuttonHomeHub/SchedulePoint_1"
+                >Read the source on GitHub</a
+              >
+              <a
+                class="button button-ghost"
+                href="https://github.com/HuttonHomeHub/SchedulePoint_1/blob/main/docs/PROJECT_BRIEF.md"
+                >The project brief</a
+              >
+              <a
+                class="button button-ghost"
+                href="https://github.com/HuttonHomeHub/SchedulePoint_1/blob/main/docs/ROADMAP.md"
+                >The roadmap</a
+              >
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ──────────────────────────── Glossary ─────────────────────────── -->
+      <section class="section" id="glossary">
+        <div class="wrap narrow">
+          <h2>A few terms, plainly</h2>
+          <dl class="glossary">
+            <div>
+              <dt>Time-Scaled Logic Diagram (TSLD)</dt>
+              <dd>
+                Activities plotted horizontally by when they happen, joined by lines showing what
+                drives what. The schedule as a network you can read at a glance.
+              </dd>
+            </div>
+            <div>
+              <dt>CPM</dt>
+              <dd>
+                Critical Path Method — the forward and backward pass that computes early and late
+                dates and float from durations and logic.
+              </dd>
+            </div>
+            <div>
+              <dt>GPM</dt>
+              <dd>
+                Graphical Path Method — CPM's graphical successor, which treats the network diagram
+                itself as the schedule rather than as a picture of one.
+              </dd>
+            </div>
+            <div>
+              <dt>Total float</dt>
+              <dd>How long an activity can slip before it delays the project.</dd>
+            </div>
+            <div>
+              <dt>Data date</dt>
+              <dd>
+                The "as-of" date for progress. Everything after it is rescheduled; everything before
+                it is history.
+              </dd>
+            </div>
+            <div>
+              <dt>Baseline</dt>
+              <dd>A frozen snapshot of the programme, kept to compare today's plan against.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <div>
+          <p class="footer-brand">SchedulePoint</p>
+          <p class="footer-note">
+            Browser-based construction scheduling, built around a Time-Scaled Logic Diagram.
+          </p>
+        </div>
+        <nav aria-label="Footer">
+          <ul class="footer-links">
+            <li><a href="https://github.com/HuttonHomeHub/SchedulePoint_1">Source code</a></li>
+            <li>
+              <a href="https://github.com/HuttonHomeHub/SchedulePoint_1/blob/main/docs/PROJECT_BRIEF.md"
+                >Project brief</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/HuttonHomeHub/SchedulePoint_1/blob/main/docs/ROADMAP.md"
+                >Roadmap</a
+              >
+            </li>
+            <li>
+              <a href="https://github.com/HuttonHomeHub/SchedulePoint_1/blob/main/LICENSE">Licence</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div class="wrap footer-legal">
+        <p>MIT licensed. Primavera P6 and MS Project are trademarks of their respective owners.</p>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
