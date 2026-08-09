@@ -824,16 +824,21 @@ code {
 .compare {
   width: 100%;
   border-collapse: collapse;
-  min-width: 46rem;
+  min-width: 56rem;
   font-size: 0.9375rem;
 }
 
 .compare th,
 .compare td {
   text-align: left;
-  padding: 0.875rem 1.25rem;
+  padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
+}
+
+.compare tbody th {
+  width: 22%;
+  min-width: 13rem;
 }
 
 .compare thead th {
@@ -873,6 +878,28 @@ code {
 .compare tbody tr:last-child th,
 .compare tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* The three head-to-head write-ups under the table. Each names one competitor
+   and concedes what it does better before making the case — a comparison that
+   only flatters itself doesn't get believed. */
+.versus {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  margin-top: 2rem;
+}
+
+.versus-card {
+  border-top: 3px solid var(--primary);
+}
+
+.versus-card h3 {
+  font-size: 1.0625rem;
+}
+
+.aside strong {
+  color: var(--foreground);
 }
 
 /* ───────────────────────────── FAQ ──────────────────────────────── */
@@ -1259,6 +1286,10 @@ code {
 
   .step-art {
     max-width: none;
+  }
+
+  .versus {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

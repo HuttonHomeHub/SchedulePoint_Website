@@ -13,9 +13,27 @@ answers while you are still in the meeting) and treats the feature list as
 supporting evidence. Implementation detail is deliberately absent: no framework
 names, no architecture, no stack.
 
-Page order is the sales argument: problem → how it works → benefits → feature
-checklist → how it compares → who it's for → what it isn't → FAQ → call to
-action.
+Page order is the sales argument: problem → how it works → **head-to-head against
+P6 and NetPoint** → benefits → feature checklist → who it's for → what it isn't →
+FAQ → call to action.
+
+All calls to action point at the application itself:
+**https://schedulepoint.huttonhomehub.co.uk**
+
+## The comparison section is the one to be careful with
+
+`#compare` names Primavera P6, NetPoint and MS Project and makes capability
+claims about them. Rules for touching it:
+
+- **Every row must be defensible** against those products' generally available
+  editions. If a claim can't be sourced, drop the row rather than soften it.
+- **Concede what they do better.** The table has a deliberate row where
+  SchedulePoint says "No — deliberately out of scope", and each head-to-head
+  card opens by granting the competitor its strengths. A comparison that only
+  flatters itself doesn't get believed, and it invites a correction in public.
+- **Keep the trademark notice in the footer current** if a product is added.
+- Re-verify the rows when those products ship major releases — the claims are a
+  snapshot, and a stale comparison is a wrong one.
 
 ## What's here
 
