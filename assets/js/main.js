@@ -8,6 +8,10 @@
 (function () {
   'use strict';
 
+  /* Flag JS availability: reveal-on-scroll only hides content under `.js`,
+     so with scripts off (or broken) everything is simply visible. */
+  document.documentElement.classList.add('js');
+
   /* ── Theme toggle ─────────────────────────────────────────────────
      The initial theme is applied by the inline script in <head> so there is no
      flash; this only handles the click and persists the choice. */
@@ -102,5 +106,32 @@
 
   sections.forEach(function (section) {
     observer.observe(section);
+  });
+
+  /* ── Reveal on scroll ─────────────────────────────────────────────
+     Cards, steps and section headers ease in as they enter the viewport.
+     Purely decorative; prefers-reduced-motion collapses it in CSS. */
+
+  var revealTargets = document.querySelectorAll(
+    '.section-head, .card, .step, .benefit, .versus-card, .faq details, .stat-strip li, .table-scroll, .aside'
+  );
+
+  var revealObserver = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      });
+    },
+    { rootMargin: '0px 0px -8% 0px', threshold: 0.05 }
+  );
+
+  revealTargets.forEach(function (el, i) {
+    el.classList.add('reveal');
+    /* Stagger siblings slightly so grids cascade rather than pop. */
+    var siblingIndex = Array.prototype.indexOf.call(el.parentElement.children, el);
+    el.style.setProperty('--reveal-delay', Math.min(siblingIndex, 5) * 60 + 'ms');
+    revealObserver.observe(el);
   });
 })();
