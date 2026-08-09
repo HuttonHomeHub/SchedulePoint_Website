@@ -11,6 +11,14 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href="https://huttonhomehub.github.io/SchedulePoint_Website/" />
+    <link rel="preload" href="assets/fonts/fraunces.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="assets/fonts/instrument.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="stylesheet" href="assets/css/styles.css" />
 
     <meta property="og:type" content="website" />
@@ -138,8 +146,20 @@
           <div
             class="hero-figure"
             role="img"
-            aria-label="A time-scaled logic diagram: activity bars placed along a date ruler, joined by logic arrows, with the critical path highlighted in red and a marker on today's date."
+            aria-label="SchedulePoint open in a browser window, showing a time-scaled logic diagram: activity bars placed along a date ruler, joined by logic arrows, with the critical path highlighted in red and a marker on today's date."
           >
+            <div class="app-frame">
+              <div class="app-chrome" aria-hidden="true">
+                <span class="app-dots"><span></span><span></span><span></span></span>
+                <span class="app-address">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <rect x="5" y="10" width="14" height="10" rx="2" />
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                  </svg>
+                  schedulepoint.huttonhomehub.co.uk
+                </span>
+              </div>
+              <div class="app-body">
             <svg viewBox="0 0 760 380" class="tsld" aria-hidden="true" focusable="false">
               <defs>
                 <marker
@@ -245,6 +265,8 @@
                 <text x="438" y="353">Non-driving</text>
               </g>
             </svg>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -253,6 +275,7 @@
       <section class="section section-muted" id="problem">
         <div class="wrap">
           <header class="section-head centred">
+            <p class="eyebrow">The problem</p>
             <h2>Sound familiar?</h2>
             <p class="section-lede">
               Three complaints turn up on nearly every job. All three come from the same place — a
@@ -647,6 +670,7 @@
       <section class="section section-muted" id="features">
         <div class="wrap">
           <header class="section-head centred">
+            <p class="eyebrow">The detail</p>
             <h2>The planner's checklist</h2>
             <p class="section-lede">
               If you have run a programme in P6, this is the list you scan first. Here it is, plainly.
@@ -707,6 +731,7 @@
       <section class="section" id="who">
         <div class="wrap">
           <header class="section-head centred">
+            <p class="eyebrow">The team</p>
             <h2>Who gets what out of it</h2>
           </header>
 
@@ -764,6 +789,7 @@
       <section class="section" id="faq">
         <div class="wrap narrow">
           <header class="section-head">
+            <p class="eyebrow">Straight answers</p>
             <h2>Questions people ask</h2>
           </header>
 
@@ -898,6 +924,7 @@
           reflect our understanding of the generally available editions and are not a statement on
           behalf of those vendors.
         </p>
+        <span class="footer-ghost" aria-hidden="true"></span>
       </div>
     </footer>
 
