@@ -166,10 +166,13 @@
             aria-label="SchedulePoint open in a browser window, showing a time-scaled logic diagram: activity bars placed along a date ruler, joined by logic arrows, with the critical path highlighted in red and a marker on today's date."
           >
             <div class="app-frame">
-              <div class="app-chrome" aria-hidden="true">
-                <span class="app-dots"><span></span><span></span><span></span></span>
-                <span class="app-address">
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <!-- The chrome's decoration is hidden from AT piece by piece
+                   rather than as a container, because the demo's functional
+                   Reset button is injected into this row at runtime. -->
+              <div class="app-chrome">
+                <span class="app-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                <span class="app-address" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
                     <rect x="5" y="10" width="14" height="10" rx="2" />
                     <path d="M8 10V7a4 4 0 0 1 8 0v3" />
                   </svg>

@@ -122,6 +122,7 @@
       a.float = a.ls - a.es;
       a.critical = a.float <= 0;
     });
+    lastEnd = end;
     LINKS.forEach(function (l) {
       var p = byId[l.from];
       var s = byId[l.to];
@@ -142,6 +143,24 @@
     act.pin = pin;
     solve();
     return es;
+  }
+
+  /* Set a pin, then walk it back until the whole downstream chain still fits
+     on the canvas — dragging simply stops at the edge of the drawing, like a
+     physical constraint, instead of pushing successors out of sight. */
+  function applyPin(act, want) {
+    act.pin = Math.max(0, Math.min(MAX_DAY - act.dur, want));
+    solve();
+    var guard = 0;
+    while (lastEnd > VIS_END && act.pin > 0 && guard < 200) {
+      act.pin -= 1;
+      solve();
+      guard += 1;
+    }
+    if (lastEnd > VIS_END) {
+      act.pin = null;
+      solve();
+    }
   }
 
   /* ── Dates for announcements ────────────────────────────────────── */
@@ -170,7 +189,17 @@
     return node;
   }
 
-  var svg = el('svg', { viewBox: '0 0 760 380', class: 'tsld tsld-live' });
+  /* Bars must stay on canvas: the furthest-right visible finish day. Pins are
+     clamped so no LEGAL move can push a successor off the edge. */
+  var VIS_END = 92;
+  var lastEnd = 0;
+
+  var svg = el('svg', {
+    viewBox: '0 0 760 380',
+    class: 'tsld tsld-live',
+    role: 'group',
+    'aria-label': 'Interactive schedule sample: six linked activities on a timeline',
+  });
 
   var decor = el('g', { 'aria-hidden': 'true' }, svg);
 
@@ -217,10 +246,16 @@
       role: 'slider',
       'aria-orientation': 'horizontal',
       'aria-valuemin': '0',
-      'aria-valuemax': String(MAX_DAY),
-      'aria-label': a.name + ', duration ' + a.dur + ' days. Arrow keys move it a day at a time.',
+      'aria-valuemax': String(MAX_DAY - a.dur),
+      'aria-label': a.name + ', ' + a.dur + ' days',
     });
-    el('rect', { x: 0, y: 0, width: a.dur * PPD, height: BAR_H, rx: 6 }, g);
+    // A generous invisible hit area so the target is comfortably grabbable
+    // even when the SVG scales down on small screens.
+    el('rect', { class: 'hit', x: -4, y: -10, width: a.dur * PPD + 8, height: BAR_H + 20 }, g);
+    // Focus halo, shown only on :focus-visible — a visible ring in both
+    // themes regardless of the bar's own colour.
+    el('rect', { class: 'halo', x: -4, y: -4, width: a.dur * PPD + 8, height: BAR_H + 8, rx: 9 }, g);
+    el('rect', { class: 'body', x: 0, y: 0, width: a.dur * PPD, height: BAR_H, rx: 6 }, g);
     var label = el('text', { x: 10, y: 17 }, g);
     label.textContent = a.name + ' · ' + a.dur + 'd';
     barLayer.appendChild(g);
@@ -248,7 +283,8 @@
 
   var hint = document.createElement('p');
   hint.className = 'demo-hint';
-  hint.innerHTML = '<span aria-hidden="true">✋</span> Try it — drag a bar and the logic re-flows';
+  hint.innerHTML =
+    '<span aria-hidden="true">✋</span> Try it — drag a bar (or arrow-key it) and the logic re-flows';
   var reset = document.createElement('button');
   reset.type = 'button';
   reset.className = 'demo-reset';
@@ -313,8 +349,11 @@
       var y1 = 84 + p.y * 44 + BAR_H / 2;
       var x2 = X0 + s.x * PPD;
       var y2 = 84 + s.y * 44 + BAR_H / 2;
-      var stub = Math.min(10, Math.max(4, (x2 - x1) / 2));
-      l.el.setAttribute('d', 'M' + x1 + ' ' + y1 + 'h' + stub + 'V' + y2 + 'H' + (x2 - 6));
+      // The final horizontal run must always point RIGHT so the arrowhead
+      // orients toward the successor — even for abutting zero-lag links.
+      var stub = Math.min(10, Math.max(3, (x2 - x1) / 2));
+      var endX = Math.max(x2 - 6, x1 + stub + 1);
+      l.el.setAttribute('d', 'M' + x1 + ' ' + y1 + 'h' + stub + 'V' + y2 + 'H' + endX);
       l.el.setAttribute('class', (l.critical ? 'critical' : '') + (l.driving ? '' : ' dashed'));
       l.el.setAttribute('marker-end', l.critical ? 'url(#arrow-live-critical)' : 'url(#arrow-live)');
     });
@@ -402,6 +441,9 @@
 
   function updateAria(act) {
     act.el.setAttribute('aria-valuenow', String(act.es));
+    // The reachable floor moves as predecessors move — keep the declared
+    // range honest so AT reports positions against reality.
+    act.el.setAttribute('aria-valuemin', String(logicStart(act)));
     act.el.setAttribute(
       'aria-valuetext',
       'starts ' + dayLabel(act.es) + (act.critical ? ', on the critical path' : ', ' + act.float + ' days float')
@@ -416,30 +458,56 @@
 
   var drag = null;
 
+  function announceBlocked(act) {
+    clearTimeout(announceTimer);
+    announceTimer = setTimeout(function () {
+      live.textContent =
+        'Logic holds ' + act.name + ' at ' + dayLabel(act.es) + ' — a predecessor drives it.';
+    }, 350);
+  }
+
+  function retireHint() {
+    hint.classList.add('is-done');
+    hint.setAttribute('aria-hidden', 'true');
+  }
+
   ACTS.forEach(function (a) {
     a.el.addEventListener('pointerdown', function (ev) {
+      if (drag) return; // one drag at a time — a second finger doesn't steal it
       ev.preventDefault();
-      a.el.setPointerCapture(ev.pointerId);
+      a.el.focus({ preventScroll: true });
+      try {
+        a.el.setPointerCapture(ev.pointerId);
+      } catch (e) {
+        /* capture is an optimisation — the drag still works without it */
+      }
       var scale = svg.getBoundingClientRect().width / 760;
       drag = {
         act: a,
+        pointerId: ev.pointerId,
         startX: ev.clientX,
         startY: ev.clientY,
         baseDay: a.es,
         baseLane: a.lane,
+        origPin: a.pin,
+        origLane: a.lane,
+        touch: ev.pointerType === 'touch',
         scale: scale,
       };
-      hint.classList.add('is-done');
+      retireHint();
       a.el.classList.add('dragging');
     });
 
     a.el.addEventListener('pointermove', function (ev) {
-      if (!drag || drag.act !== a) return;
+      if (!drag || drag.act !== a || drag.pointerId !== ev.pointerId) return;
       var days = (ev.clientX - drag.startX) / (PPD * drag.scale);
-      var lanes = (ev.clientY - drag.startY) / (44 * drag.scale);
-      var want = Math.round(drag.baseDay + days);
-      a.pin = Math.max(0, Math.min(MAX_DAY - a.dur, want));
-      a.lane = Math.max(0, Math.min(ROWS.length - 1, Math.round(drag.baseLane + lanes)));
+      applyPin(a, Math.round(drag.baseDay + days));
+      // Touch keeps the vertical axis for page scrolling (touch-action:
+      // pan-y on the SVG), so only mouse and pen may relane.
+      if (!drag.touch) {
+        var lanes = (ev.clientY - drag.startY) / (44 * drag.scale);
+        a.lane = Math.max(0, Math.min(ROWS.length - 1, Math.round(drag.baseLane + lanes)));
+      }
       schedule();
     });
 
@@ -447,56 +515,102 @@
       if (!drag || drag.act !== a) return;
       a.el.classList.remove('dragging');
       // A pin at or left of what logic dictates does nothing — clear it, and
-      // the bar springs back to its logic-driven start. Logic wins.
-      if (a.pin !== null && a.pin <= logicStart(a)) a.pin = null;
+      // the bar springs back to its logic-driven start. Logic wins, and the
+      // live region says so rather than leaving the snap-back silent.
+      var snapped = false;
+      if (a.pin !== null && a.pin <= logicStart(a)) {
+        snapped = a.pin < logicStart(a);
+        a.pin = null;
+      }
       drag = null;
+      solve();
       schedule();
       refreshAria();
-      announce(a);
+      if (snapped) announceBlocked(a);
+      else announce(a);
       markDirty();
     }
 
     a.el.addEventListener('pointerup', endDrag);
-    a.el.addEventListener('pointercancel', endDrag);
 
-    /* Keyboard: a day at a time; Home clears the pin. */
+    /* The browser cancels the pointer stream when it claims the gesture for
+       scrolling. A scroll that merely started on a bar must not edit the
+       plan, so cancel restores the pre-drag state instead of committing. */
+    a.el.addEventListener('pointercancel', function () {
+      if (!drag || drag.act !== a) return;
+      a.el.classList.remove('dragging');
+      a.pin = drag.origPin;
+      a.lane = drag.origLane;
+      drag = null;
+      solve();
+      schedule();
+      refreshAria();
+      markDirty();
+    });
+
+    /* Keyboard, per the slider pattern: arrows step a day at a time from the
+       bar's EFFECTIVE start (never from a stale pin), Home returns it to the
+       earliest its logic allows. */
     a.el.addEventListener('keydown', function (ev) {
       var handled = true;
-      if (ev.key === 'ArrowRight') {
-        a.pin = Math.min(MAX_DAY - a.dur, (a.pin === null ? a.es : a.pin) + 1);
-      } else if (ev.key === 'ArrowLeft') {
-        var next = (a.pin === null ? a.es : a.pin) - 1;
-        a.pin = next <= logicStart(a) ? null : next;
-      } else if (ev.key === 'ArrowDown') {
-        a.lane = Math.min(ROWS.length - 1, a.lane + 1);
-      } else if (ev.key === 'ArrowUp') {
-        a.lane = Math.max(0, a.lane - 1);
+      var atLogicFloor = false;
+      var atCanvasEdge = false;
+      var before = a.es;
+      if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') {
+        applyPin(a, a.es + 1);
+        atCanvasEdge = a.es === before; // the chain no longer fits the canvas
+      } else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') {
+        var floor = logicStart(a);
+        if (a.es - 1 < floor) {
+          atLogicFloor = a.es <= floor;
+          a.pin = null;
+        } else {
+          a.pin = a.es - 1;
+        }
+        solve();
       } else if (ev.key === 'Home') {
         a.pin = null;
-        a.lane = a.homeLane;
+        solve();
+      } else if (ev.key === 'End') {
+        applyPin(a, MAX_DAY - a.dur);
       } else {
         handled = false;
       }
       if (handled) {
         ev.preventDefault();
-        hint.classList.add('is-done');
+        retireHint();
         schedule();
         refreshAria();
-        announce(a);
+        if (atLogicFloor) {
+          announceBlocked(a);
+        } else if (atCanvasEdge) {
+          clearTimeout(announceTimer);
+          announceTimer = setTimeout(function () {
+            live.textContent =
+              'The sample canvas ends here — ' + a.name + ' stays at ' + dayLabel(a.es) + '.';
+          }, 350);
+        } else {
+          announce(a);
+        }
         markDirty();
       }
     });
   });
 
   reset.addEventListener('click', function () {
+    clearTimeout(announceTimer);
     ACTS.forEach(function (a) {
       a.pin = null;
       a.lane = a.homeLane;
     });
+    solve();
     schedule();
     refreshAria();
     markDirty();
     live.textContent = 'Plan reset to the original schedule.';
+    // The button hides itself once clean — hand focus to the first bar so
+    // keyboard users are not dropped onto <body>.
+    ACTS[0].el.focus();
   });
 
   /* ── First paint ────────────────────────────────────────────────── */
