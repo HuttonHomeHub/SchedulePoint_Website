@@ -122,7 +122,7 @@
      Purely decorative; prefers-reduced-motion collapses it in CSS. */
 
   var revealTargets = document.querySelectorAll(
-    '.section-head, .card, .step, .benefit, .versus-card, .faq details, .stat-strip li, .table-scroll, .aside'
+    '.section-head, .card, .pullquote, .step, .benefit, .versus-card, .faq details, .stat-strip li, .table-scroll, .aside, .title-block'
   );
 
   var revealObserver = new IntersectionObserver(
