@@ -1,0 +1,28 @@
+{
+  "name": "SchedulePoint",
+  "short_name": "SchedulePoint",
+  "description": "Construction planning everyone in the room can read.",
+  "start_url": "/SchedulePoint_Website/",
+  "scope": "/SchedulePoint_Website/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#1C2433",
+  "icons": [
+    {
+      "src": "assets/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/img/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

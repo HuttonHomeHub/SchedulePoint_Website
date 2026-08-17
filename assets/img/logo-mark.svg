@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SchedulePoint mark">
+  <!--
+    The mark: a miniature time-scaled schedule resolving to a point.
+    Two activity bars cascade left-to-right, one orthogonal logic link
+    steps down from the first, and the programme terminates in a
+    milestone target - the "point". Ink #1C2433, blue #2E5FA8,
+    copper #C9822E on transparent.
+  -->
+  <path d="M42 14 h4 a8 8 0 0 1 8 8 v14" fill="none" stroke="#2E5FA8" stroke-width="6" stroke-linecap="round" />
+  <rect x="4" y="8" width="38" height="12" rx="6" fill="#1C2433" />
+  <rect x="4" y="40" width="34" height="12" rx="6" fill="#1C2433" />
+  <circle cx="54" cy="46" r="11" fill="#C9822E" />
+  <circle cx="54" cy="46" r="5.5" fill="#FFFFFF" />
+  <circle cx="54" cy="46" r="2.75" fill="#C9822E" />
+</svg>

@@ -419,6 +419,22 @@ code {
   letter-spacing: -0.01em;
 }
 
+/* The wordmark's accent half — "Point" carries the brand blue. */
+.brand-point {
+  color: var(--primary);
+}
+
+.footer-brand .brand-point {
+  color: #6e9be0;
+}
+
+.footer-mark {
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: -0.2em;
+  margin-right: 0.35rem;
+}
+
 .site-nav {
   flex: 1 1 auto;
   min-width: 0;
