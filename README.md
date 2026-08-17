@@ -38,13 +38,23 @@ claims about them. Rules for touching it:
 ## What's here
 
 ```text
-index.html              The whole site — one page, sectioned
-assets/css/styles.css   All styles; colour tokens mirror the app's design system
-assets/js/main.js       Theme toggle + current-section nav highlighting
-assets/img/favicon.svg  The mark
-robots.txt              Crawlable, points at the sitemap
-sitemap.xml             The single page
+index.html                The whole site — one page, sectioned
+assets/css/styles.css     All styles; tokens, motion, and the demo's skin
+assets/js/main.js         Theme toggle, nav highlight, reveals, counters
+assets/js/tsld-demo.js    The hero's live sample: a real (tiny) CPM engine —
+                          forward/backward pass, float, critical path — driving
+                          an interactive SVG. Drag a bar (or arrow-key it) and
+                          the network re-flows. Without JS the static SVG stands.
+assets/fonts/             Fraunces + Instrument Sans, latin-subset WOFF2
+assets/img/               Mark, favicons, app icons, OG share card
+site.webmanifest          Install-as-app metadata
+robots.txt / sitemap.xml  Crawl hygiene
 ```
+
+The demo engine is honest CPM on purpose: pins are start-no-earlier
+constraints, a pin dragged left of what logic allows clears itself (logic
+wins), float and driving links are computed, not styled. If the numbers in it
+ever look wrong, treat that as a bug, not a styling choice.
 
 **No build step and no dependencies.** It is static HTML, CSS and ~100 lines of
 vanilla JavaScript, so it can be served by anything that serves files.

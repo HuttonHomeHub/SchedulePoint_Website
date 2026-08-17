@@ -23,11 +23,20 @@
     return theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
   }
 
+  var themeAnimTimer = null;
+
   if (toggle) {
     toggle.setAttribute('aria-label', labelFor(root.dataset.theme));
 
     toggle.addEventListener('click', function () {
       var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      /* Cross-fade the flip: the transition class lives only as long as the
+         change, so the rest of the time nothing carries transition cost. */
+      root.classList.add('theme-anim');
+      clearTimeout(themeAnimTimer);
+      themeAnimTimer = setTimeout(function () {
+        root.classList.remove('theme-anim');
+      }, 450);
       root.dataset.theme = next;
       toggle.setAttribute('aria-label', labelFor(next));
       try {
@@ -134,4 +143,65 @@
     el.style.setProperty('--reveal-delay', Math.min(siblingIndex, 5) * 60 + 'ms');
     revealObserver.observe(el);
   });
+
+  /* ── Header elevation ─────────────────────────────────────────────
+     A shadow appears once the page has scrolled under the header. */
+
+  var header = document.querySelector('.site-header');
+  if (header) {
+    var onScroll = function () {
+      header.classList.toggle('scrolled', window.scrollY > 8);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* ── Stat count-up ────────────────────────────────────────────────
+     Numbers in the stat strip count up the first time they scroll into
+     view. Skipped entirely under prefers-reduced-motion. */
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var stats = document.querySelectorAll('.stat-strip strong');
+
+  if (stats.length && !reduceMotion.matches) {
+    var easeOut = function (t) {
+      return 1 - Math.pow(1 - t, 3);
+    };
+
+    var runCounter = function (el) {
+      var raw = el.textContent;
+      var match = raw.match(/^([^0-9]*)([\d,]+)(.*)$/);
+      if (!match) return;
+      var target = parseInt(match[2].replace(/,/g, ''), 10);
+      if (!isFinite(target) || target === 0) return;
+      var prefix = match[1];
+      var suffix = match[3];
+      var t0 = null;
+      var dur = 900;
+      var frame = function (ts) {
+        if (t0 === null) t0 = ts;
+        var t = Math.min(1, (ts - t0) / dur);
+        var value = Math.round(target * easeOut(t));
+        el.textContent = prefix + value.toLocaleString('en-GB') + suffix;
+        if (t < 1) requestAnimationFrame(frame);
+        else el.textContent = raw;
+      };
+      requestAnimationFrame(frame);
+    };
+
+    var statObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          runCounter(entry.target);
+          statObserver.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.6 }
+    );
+
+    stats.forEach(function (el) {
+      statObserver.observe(el);
+    });
+  }
 })();
