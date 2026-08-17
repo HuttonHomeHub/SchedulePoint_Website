@@ -625,6 +625,13 @@ code {
   align-items: center;
 }
 
+/* Grid items default to min-width:auto, which lets the app-chrome's
+   content (address pill + injected Reset button) blow the track out past
+   the viewport on phones. Zero it so the chrome shrinks instead. */
+.hero-inner > * {
+  min-width: 0;
+}
+
 .hero .eyebrow {
   margin-bottom: 1.5rem;
 }
@@ -866,6 +873,205 @@ code {
 
 .tsld-legend .legend-line.dashed {
   stroke-dasharray: 5 4;
+}
+
+/* ── The live sample ─────────────────────────────────────────────── */
+
+/* touch-action must live on the SVG ROOT — Chromium ignores it on SVG
+   children, which broke touch drags entirely. pan-y keeps vertical swipes
+   scrolling the page; horizontal drags belong to the demo. */
+.tsld-live {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+
+.tsld-live .bar {
+  cursor: grab;
+}
+
+.tsld-live .bar .hit {
+  fill: #000;
+  fill-opacity: 0;
+  pointer-events: all;
+}
+
+.tsld-live .bar .halo {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 2.5;
+  pointer-events: none;
+}
+
+.tsld-live .bar .body {
+  fill: var(--diagram-bar);
+  transition: fill 300ms ease-out, stroke 300ms ease-out;
+}
+
+.tsld-live .bar.critical .body {
+  fill: var(--diagram-critical);
+}
+
+/* A planner-imposed start ("pin") is visible state, not a secret. */
+.tsld-live .bar.pinned .body {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.tsld-live .bar.dragging {
+  cursor: grabbing;
+}
+
+.tsld-live .bar.dragging .body {
+  filter: drop-shadow(0 6px 10px oklch(0.2 0.03 262 / 0.35));
+}
+
+.tsld-live .bar:focus-visible {
+  outline: none;
+}
+
+/* The halo ring sits OUTSIDE the bar on the canvas ground, so it contrasts
+   in both themes whatever colour the bar itself is. */
+.tsld-live .bar:focus-visible .halo {
+  stroke: var(--ring);
+}
+
+.tsld-live .bar text {
+  fill: var(--diagram-bar-text);
+  font-size: 10.5px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.tsld-live .tsld-links path {
+  transition: stroke 300ms ease-out;
+}
+
+.tsld-live .head {
+  fill: var(--diagram-link);
+}
+
+.tsld-live .head-critical {
+  fill: var(--diagram-critical);
+}
+
+/* One-time dash sweep as the logic draws itself on. */
+.tsld-live.draw-on .tsld-links path {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: tsld-draw 1100ms var(--ease-out-soft) forwards;
+}
+
+.tsld-live.draw-on .tsld-links path.dashed {
+  animation-name: tsld-draw-dashed;
+}
+
+@keyframes tsld-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes tsld-draw-dashed {
+  to {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 5 4;
+  }
+}
+
+.app-body {
+  position: relative;
+}
+
+.demo-hint {
+  position: absolute;
+  top: 27%;
+  right: 1.25rem;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: 0 8px 20px -8px oklch(0.2 0.04 262 / 0.4);
+  pointer-events: none;
+  transition:
+    opacity 400ms ease-out,
+    transform 400ms ease-out,
+    visibility 0s 400ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .demo-hint {
+    animation: hint-nudge 2.6s ease-in-out infinite;
+  }
+}
+
+.demo-hint.is-done {
+  opacity: 0;
+  transform: translateY(-4px);
+  visibility: hidden;
+  animation: none;
+}
+
+/* On phones the floating chip would cover the diagram's top lanes — let it
+   flow beneath the canvas instead. */
+@media (max-width: 47.99rem) {
+  .demo-hint {
+    position: static;
+    display: inline-flex;
+    margin: 0.25rem 0 0;
+    animation: none;
+  }
+
+  .demo-hint.is-done {
+    display: none;
+  }
+}
+
+@keyframes hint-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.demo-reset {
+  flex: none;
+  height: 1.75rem;
+  padding-inline: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, transform 150ms ease-out;
+}
+
+.demo-reset:hover {
+  background: var(--muted);
+  transform: translateY(-1px);
+}
+
+.hero-figure {
+  position: relative;
+}
+
+.demo-caption {
+  margin: 0.875rem 0.25rem 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
 }
 
 /* ───────────────────────────── Cards ────────────────────────────── */
@@ -1477,16 +1683,131 @@ code {
 
 .js .reveal {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(20px);
+  filter: blur(3px);
   transition:
-    opacity 650ms var(--ease-out-soft),
-    transform 650ms var(--ease-out-soft);
+    opacity 700ms var(--ease-out-soft),
+    transform 700ms var(--ease-out-soft),
+    filter 700ms var(--ease-out-soft);
   transition-delay: var(--reveal-delay, 0ms);
 }
 
 .js .reveal.is-visible {
   opacity: 1;
   transform: none;
+  filter: none;
+}
+
+/* Hero entrance: copy cascades up, the frame settles into place. Runs once
+   on load; the .js guard keeps a script failure from hiding anything. */
+.js .hero-copy > * {
+  animation: rise-in 900ms var(--ease-out-soft) both;
+}
+
+.js .hero-copy > :nth-child(1) { animation-delay: 60ms; }
+.js .hero-copy > :nth-child(2) { animation-delay: 140ms; }
+.js .hero-copy > :nth-child(3) { animation-delay: 240ms; }
+.js .hero-copy > :nth-child(4) { animation-delay: 330ms; }
+.js .hero-copy > :nth-child(5) { animation-delay: 420ms; }
+
+.js .hero-figure {
+  animation: settle-in 1100ms var(--ease-out-soft) 250ms both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes settle-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Header lifts off the page once you scroll. */
+.site-header {
+  transition: box-shadow 300ms ease-out;
+}
+
+.site-header.scrolled {
+  box-shadow: 0 8px 24px -16px oklch(0.2 0.04 var(--shadow-hue) / 0.35);
+}
+
+/* Theme switch cross-fades instead of snapping. The class is added for the
+   duration of the flip only, so nothing else pays the transition cost — and
+   the whole affordance simply doesn't exist under reduced motion, so the
+   !important here can never outrank the kill switch. */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-anim,
+  html.theme-anim body,
+  html.theme-anim .card,
+  html.theme-anim .site-header,
+  html.theme-anim .app-frame,
+  html.theme-anim .app-chrome,
+  html.theme-anim .benefit,
+  html.theme-anim .step,
+  html.theme-anim .faq details,
+  html.theme-anim .table-scroll {
+    transition:
+      background-color 400ms ease-in-out,
+      border-color 400ms ease-in-out,
+      color 400ms ease-in-out !important;
+  }
+}
+
+/* FAQ answers glide open where the platform supports it. */
+@supports (interpolate-size: allow-keywords) {
+  .faq details {
+    interpolate-size: allow-keywords;
+  }
+
+  .faq details::details-content {
+    opacity: 0;
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      content-visibility 400ms allow-discrete,
+      opacity 400ms var(--ease-out-soft),
+      block-size 400ms var(--ease-out-soft);
+  }
+
+  .faq details[open]::details-content {
+    opacity: 1;
+    block-size: auto;
+  }
+}
+
+/* Hero glows drift gently with scroll on engines that support it. Scroll
+   timelines ignore animation-duration, so the reduced-motion kill switch
+   cannot stop them — gate the whole effect on motion preference instead. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .hero::before {
+      animation: glow-drift linear both;
+      animation-timeline: scroll();
+      animation-range: 0 120vh;
+    }
+
+    @keyframes glow-drift {
+      to {
+        transform: translateY(6rem);
+      }
+    }
+  }
 }
 
 /* ───────────────────────────── Responsive ───────────────────────── */
@@ -1573,6 +1894,7 @@ code {
   .js .reveal {
     opacity: 1;
     transform: none;
+    filter: none;
   }
 }
 
